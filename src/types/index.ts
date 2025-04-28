@@ -1,3 +1,5 @@
+import type { ComponentType } from 'react';
+
 export interface Player {
   rank: number;
   username: string;
@@ -20,4 +22,11 @@ export interface MarketItem {
 
 export interface MarketResponse {
   items: MarketItem[];
+}
+
+export interface WithTabsProps {
+  first: ComponentType
+  second: ComponentType
+  firstLabel: string
+  secondLabel: string
 }
