@@ -15,7 +15,6 @@ body {
   margin: 0;
   padding: 0;
   position: relative;
-  overflow: hidden;
   background-color: #000;
   @apply bg-gray-900 text-gray-100 font-sans antialiased;
 }
