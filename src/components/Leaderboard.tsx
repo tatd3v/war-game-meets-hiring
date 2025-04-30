@@ -1,8 +1,15 @@
+import { memo, useMemo } from 'preact/compat'
 import { useQuery } from '@tanstack/react-query'
-import { fetchLeaderboard } from '../services/api'
-import type { LeaderboardResponse } from '../types'
 
-const SkeletonRow = () => (
+import { fetchLeaderboard } from '../services/api'
+import RefetchButton from './UI/RefetchButton'
+
+import type { LeaderboardResponse, Player } from '../types'
+
+const iconSrc = '/icons/refresh-144x144.png'
+const iconSrcSet = '/icons/refresh-144x144.png 144w, /icons/refresh-512x512.png 512w'
+
+const SkeletonRow = memo(() => (
   <tr className="animate-pulse">
     <td className="p-2"><div className="h-4 bg-gray-700 rounded w-1/4"></div></td>
     <td className="p-2"><div className="h-4 bg-gray-700 rounded w-3/4"></div></td>
@@ -10,66 +17,84 @@ const SkeletonRow = () => (
     <td className="p-2 text-right"><div className="h-4 bg-gray-700 rounded w-1/2 ml-auto"></div></td>
     <td className="p-2 text-right"><div className="h-4 bg-gray-700 rounded w-1/2 ml-auto"></div></td>
   </tr>
-)
+))
+
+interface PlayerRowProps { p: Player }
+const PlayerRow = memo(({ p }: PlayerRowProps) => (
+  <tr key={p.username} className="border-b border-gray-700 last:border-b-0 hover:bg-gray-700/50">
+    <td className="p-2 font-semibold text-center w-1/12 md:w-auto">{p.rank}</td>
+    <td className="p-2 font-medium w-1/3 md:w-auto">{p.username}</td>
+    <td className="p-2 text-right w-1/6 md:w-auto">{p.level}</td>
+    <td className="p-2 text-right w-1/6 md:w-auto">{p.xp}</td>
+    <td className="p-2 text-right text-yellow-400 w-1/6 md:w-auto">{p.gold} G</td>
+  </tr>
+))
 
 const Leaderboard = () => {
-  const { data, isLoading, isError, error } = useQuery<LeaderboardResponse, Error>({
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useQuery<LeaderboardResponse, Error>({
     queryKey: ['leaderboard'],
     queryFn: fetchLeaderboard,
   })
 
-  const rows = isLoading
-    ? Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} />)
-    : isError
-      ? (
+  const rows = useMemo(() => {
+    if (isLoading) {
+      return Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} />)
+    }
+    if (isError) {
+      return (
         <tr>
           <td colSpan={5} className="p-4 text-center text-red-400">
             Error loading leaderboard: {error?.message}
           </td>
         </tr>
       )
-      : (data?.players.length
-        ? data.players.map(p => (
-          <tr key={p.username} className="border-b border-gray-700 last:border-b-0 hover:bg-gray-700/50">
-            <td className="p-2 font-semibold text-center w-1/12">{p.rank}</td>
-            <td className="p-2 font-medium">{p.username}</td>
-            <td className="p-2 text-right">{p.level}</td>
-            <td className="p-2 text-right">{p.xp}</td>
-            <td className="p-2 text-right text-yellow-400">{p.gold} G</td>
-          </tr>
-        ))
-        : (
-          <tr>
-            <td colSpan={5} className="p-4 text-center text-gray-500">
-              Leaderboard is empty.
-            </td>
-          </tr>
-        )
-      )
+    }
+    if (data?.players.length) {
+      return data.players.map(p => <PlayerRow key={p.username} p={p} />)
+    }
+    return (
+      <tr>
+        <td colSpan={5} className="p-4 text-center text-gray-500">
+          Leaderboard is empty.
+        </td>
+      </tr>
+    )
+  }, [isLoading, isError, error?.message, data?.players])
 
   return (
     <section className="flex flex-col p-4 bg-slate-800 rounded-lg shadow-lg h-full">
-      <h2 className="text-xl md:text-2xl font-semibold mb-4 text-cyan-300">
-        Leaderboard
-      </h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="flex-1 text-xl md:text-2xl font-semibold text-cyan-300">Leaderboard</h2>
+        <RefetchButton
+          onClick={() => void refetch()}
+          iconSrc={iconSrc}
+          iconSrcSet={iconSrcSet}
+          size={32}
+          className="text-cyan-300"
+        />
+      </div>
       <div className="flex-1 overflow-auto">
-        <table className="min-w-full text-left text-sm md:text-base table-fixed">
+        <table className="min-w-full text-left text-sm md:text-base table-auto">
           <thead className="border-b-2 border-gray-600 text-gray-400 uppercase text-xs whitespace-nowrap">
             <tr>
-              <th className="p-2 text-center w-1/12">Rank</th>
-              <th className="p-2">Username</th>
-              <th className="p-2 text-right">Level</th>
-              <th className="p-2 text-right">XP</th>
-              <th className="p-2 text-right">Gold</th>
+              <th className="p-2 text-center w-1/12 md:w-auto">Rank</th>
+              <th className="p-2 w-1/3 md:w-auto">Username</th>
+              <th className="p-2 text-right w-1/6 md:w-auto">Level</th>
+              <th className="p-2 text-right w-1/6 md:w-auto">XP</th>
+              <th className="p-2 text-right w-1/6 md:w-auto">Gold</th>
             </tr>
           </thead>
-          <tbody>
-            {rows}
-          </tbody>
+          <tbody>{rows}</tbody>
         </table>
       </div>
     </section>
   )
 }
 
-export default Leaderboard
+export default memo(Leaderboard)
