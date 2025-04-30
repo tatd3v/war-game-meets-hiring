@@ -1,5 +1,4 @@
 import type { ComponentType } from 'react';
-
 export interface Player {
   rank: number;
   username: string;
@@ -29,4 +28,12 @@ export interface WithTabsProps {
   second: ComponentType
   firstLabel: string
   secondLabel: string
+}
+
+export interface RefetchButtonProps {
+  onClick: () => void
+  iconSrc: string
+  iconSrcSet: string
+  size?: number
+  className?: string
 }
