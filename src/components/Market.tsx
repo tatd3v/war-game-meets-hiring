@@ -1,4 +1,4 @@
-import { memo, useCallback } from 'preact/compat';
+import { memo } from 'preact/compat';
 import { useQuery } from '@tanstack/react-query';
 
 import { fetchMarket } from '../services/api';
