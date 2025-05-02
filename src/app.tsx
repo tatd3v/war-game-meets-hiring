@@ -47,7 +47,7 @@ export function App() {
         <div className="h-full overflow-hidden flex flex-col mx-auto relative z-10">
           <header className="text-center my-6 md:my-8">
             <h1 className="text-3xl md:text-4xl font-bold text-cyan-400 tracking-tight">
-              Galactic Fishing Stats
+              Galactic Fishing Tournament
             </h1>
           </header>
 
