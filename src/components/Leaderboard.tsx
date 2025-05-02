@@ -1,3 +1,4 @@
+import { useEffect } from 'preact/hooks'
 import { memo, useMemo } from 'preact/compat'
 import { useQuery } from '@tanstack/react-query'
 
@@ -11,11 +12,11 @@ const iconSrcSet = '/icons/refresh-144x144.png 144w, /icons/refresh-512x512.png 
 
 const SkeletonRow = memo(() => (
   <tr className="animate-pulse">
-    <td className="p-2"><div className="h-4 bg-gray-700 rounded w-1/4"></div></td>
-    <td className="p-2"><div className="h-4 bg-gray-700 rounded w-3/4"></div></td>
-    <td className="p-2 text-right"><div className="h-4 bg-gray-700 rounded w-1/2 ml-auto"></div></td>
-    <td className="p-2 text-right"><div className="h-4 bg-gray-700 rounded w-1/2 ml-auto"></div></td>
-    <td className="p-2 text-right"><div className="h-4 bg-gray-700 rounded w-1/2 ml-auto"></div></td>
+    {Array.from({ length: 7 }).map((_, i) => (
+      <td key={i} className="p-2">
+        <div className="h-4 bg-gray-700 rounded w-3/4 mx-auto"></div>
+      </td>
+    ))}
   </tr>
 ))
 
@@ -27,6 +28,10 @@ const PlayerRow = memo(({ p }: PlayerRowProps) => (
     <td className="p-2 text-right w-1/6 md:w-auto">{p.level}</td>
     <td className="p-2 text-right w-1/6 md:w-auto">{p.xp}</td>
     <td className="p-2 text-right text-yellow-400 w-1/6 md:w-auto">{p.gold} G</td>
+    <td className="p-2 text-right w-1/6 md:w-auto" title={p.emojiDescription}>{p.fishEmojis}</td>
+    <td className="p-2 text-right w-1/6 md:w-auto">
+      {p.isInfected ? <span className="text-red-400">🦠</span> : <span className="text-green-400">❤️</span>}
+    </td>
   </tr>
 ))
 
@@ -39,8 +44,14 @@ const Leaderboard = () => {
     refetch,
   } = useQuery<LeaderboardResponse, Error>({
     queryKey: ['leaderboard'],
-    queryFn: fetchLeaderboard,
+    queryFn: fetchLeaderboard
   })
+
+  useEffect(() => {
+    if (data) {
+      console.log('Data fetched:', data)
+    }
+  }, [data])
 
   const rows = useMemo(() => {
     if (isLoading) {
@@ -88,6 +99,8 @@ const Leaderboard = () => {
               <th className="p-2 text-right w-1/6 md:w-auto">Level</th>
               <th className="p-2 text-right w-1/6 md:w-auto">XP</th>
               <th className="p-2 text-right w-1/6 md:w-auto">Gold</th>
+              <th className="p-2 text-right w-1/6 md:w-auto">Fish</th>
+              <th className="p-2 text-right w-1/6 md:w-auto">Infected</th>
             </tr>
           </thead>
           <tbody>{rows}</tbody>
