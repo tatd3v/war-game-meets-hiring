@@ -5,6 +5,9 @@ export interface Player {
   level: number;
   xp: number;
   gold: number;
+  fishEmojis: string;
+  emojiDescription: string;
+  isInfected: boolean;
 }
 
 export interface LeaderboardResponse {
