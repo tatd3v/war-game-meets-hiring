@@ -44,7 +44,9 @@ const Leaderboard = () => {
     refetch,
   } = useQuery<LeaderboardResponse, Error>({
     queryKey: ['leaderboard'],
-    queryFn: fetchLeaderboard
+    queryFn: fetchLeaderboard,
+    refetchInterval: 300000,
+    refetchOnWindowFocus: false
   })
 
   useEffect(() => {

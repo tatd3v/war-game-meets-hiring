@@ -37,6 +37,8 @@ const Market = () => {
   } = useQuery<MarketResponse, Error>({
     queryKey: ['market'],
     queryFn: fetchMarket,
+    refetchInterval: 300000,
+    refetchOnWindowFocus: false
   });
 
   const content = isLoading
